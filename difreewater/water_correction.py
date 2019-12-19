@@ -1,5 +1,5 @@
 import numpy as np
-import learning
+from difreewater import learning
 
 
 def subtract_water(dwi, brainmask, water_percentage, bvals, csf_voxel, threshold_waterpercentage = 0.8):

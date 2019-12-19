@@ -5,9 +5,9 @@ import torch.nn as nn
 device = torch.device('cpu')
 
 
-class Net(nn.Module):
+class DifreewaterNet(nn.Module):
     def __init__(self, input_dim, output_dim):
-        super(Net, self).__init__()
+        super(DifreewaterNet, self).__init__()
         # Calling Super Class's constructor
         s = input_dim
         self.lin1 = nn.Linear(s, np.int(s/2))
