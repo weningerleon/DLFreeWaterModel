@@ -14,5 +14,4 @@ setuptools.setup(
     url='https://github.com/weningerleon/difreewater',
     packages=setuptools.find_packages(),
     python_requires=">=3.5",
-    install_requires=['dipy','pytorch']
 )
