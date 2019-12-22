@@ -38,9 +38,8 @@ def train(x, y, net, criterion, num_epochs, optimizer):
     for j in range(num_epochs):
         train_epoch(x_train, y_train, net, criterion, optimizer, batch_size=256)
 
-        if j%10==0:
-            mse_val, me_val = evaluate(x_val, y_val, net)
-            print("Epoch {}: MSE={}, ME={}".format(j,mse_val, me_val))
+        mse_val, me_val = evaluate(x_val, y_val, net)
+        print("Epoch {}: MSE={}, ME={}".format(j,mse_val, me_val))
 
     return mse_val, me_val
 
