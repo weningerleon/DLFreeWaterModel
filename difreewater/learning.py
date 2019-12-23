@@ -2,8 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-device = torch.device('cpu')
+from torch.utils.data import DataLoader, TensorDataset
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DifreewaterNet(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -26,7 +27,12 @@ class DifreewaterNet(nn.Module):
         return self.lin8(x)
 
 
-def train(x, y, net, criterion, num_epochs, optimizer):
+def train(x, y, num_epochs=25):
+    net = DifreewaterNet(x.shape[1], 1)
+    net.to(device)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.005)
+    criterion = nn.MSELoss()
+
     len_data = x.__len__()
     s = int(len_data*0.8)
 
@@ -34,58 +40,53 @@ def train(x, y, net, criterion, num_epochs, optimizer):
     y_train = y[:s]
     x_val = x[s:,:]
     y_val = y[s:]
+    x_train_t = torch.from_numpy(x_train).float()
+    y_train_t = torch.from_numpy(np.expand_dims(y_train, axis=-1)).float()
+    x_val_t = torch.from_numpy(x_val).float()
+    y_val_t = torch.from_numpy(np.expand_dims(y_val, axis=-1)).float()
 
-    for j in range(num_epochs):
-        train_epoch(x_train, y_train, net, criterion, optimizer, batch_size=256)
+    trainset = TensorDataset(x_train_t, y_train_t)
+    testset = TensorDataset(x_val_t, y_val_t)
 
-        mse_val, me_val = evaluate(x_val, y_val, net)
-        print("Epoch {}: MSE={}, ME={}".format(j,mse_val, me_val))
+    trainloader = DataLoader(trainset, batch_size=256, num_workers=2, shuffle=True)
+    testloader = DataLoader(testset, batch_size=2560, num_workers=2, shuffle=True)
 
-    return mse_val, me_val
+    for epoch in range(num_epochs):
+        for batch_nr, data in enumerate(trainloader):
+            input, tgt = data
+            input = input.to(device)
+            tgt = tgt.to(device)
 
+            optimizer.zero_grad()
+            output = net.forward(input)
 
-def train_epoch(x_train, y_train, net, criterion, optimizer, batch_size=256):
-    for i in range(0, x_train.__len__(), batch_size):
-        input = x_train[i:i+batch_size]
-        target = np.expand_dims(y_train[i:i+batch_size], axis=-1)
+            loss = criterion(output, tgt)
+            loss.backward()
+            optimizer.step()
+        # Validate
+        with torch.no_grad():
+            mse = []
+            me = []
+            for batch_nr, data in enumerate(testloader):
+                input, tgt = data
+                input = input.to(device)
+                output = net(input)
 
-        input = np.float32(input)
-        target = np.float32(target)
+                mse.append(np.mean((output - tgt).numpy() ** 2))
+                me.append(np.mean(np.abs((output - tgt).numpy())))
+            print("Epoch {}: MSE={}, ME={}".format(epoch, np.mean(mse), np.mean(me)))
 
-        input = torch.from_numpy(input).to(device)
-        target = torch.from_numpy(target).to(device)
-        net = net.to(device)
-
-        optimizer.zero_grad()
-        output = net.forward(input)
-
-        loss = criterion(output, target)
-        loss.backward()
-        optimizer.step()
-
-
-def evaluate(x_val, y_val, net):
-
-    output = predict(x_val, net)
-
-    target = np.expand_dims(y_val, axis=-1)
-
-    mse = np.mean((output - target)**2)
-    me = np.mean(np.abs(output - target))
-
-    return mse, me
-
+    return net
 
 
 def predict(data, net):
+    with torch.no_grad():
+        input = torch.from_numpy(np.float32(data)).to(device)
+        output = net(input)
 
-    input = torch.from_numpy(np.float32(data)).to(device)
-    output = net(input)
-
-    prediction = output.cpu().detach().numpy()
+        prediction = output.cpu().numpy()
 
     prediction[prediction>1]=1
     prediction[prediction<0]=0
-
 
     return prediction

@@ -4,12 +4,15 @@ import random
 from dipy.sims.phantom import add_noise
 
 import warnings
+from tqdm import tqdm
 
 from dipy.reconst.csdeconv import fa_superior
 from dipy.reconst.dti import TensorModel, fractional_anisotropy
 from dipy.core.gradients import gradient_table
 from dipy.reconst.shm import sf_to_sh, sh_to_sf
 from dipy.core.sphere import Sphere
+
+from dipy.core.geometry import vec2vec_rotmat
 
 def get_rotation_matrix(degrees):
     alpha, beta, gamma = degrees
@@ -41,7 +44,6 @@ def get_rotation_matrix(degrees):
 
 
 def rotate_edw(degrees, edw, bvecs, bvals, sh_order=8):
-    # TODO: look at dipy: vec2vec_rotmat if a faster solution is possible
 
     R = get_rotation_matrix(degrees)
 
@@ -211,7 +213,7 @@ class SynDiffData():
 
         x = []
         y = []
-        for i in range(sample_size):
+        for i in tqdm(range(sample_size)):
             f_csf = random.uniform(0, 1)
             f_gm = random.uniform(0, 1)
             f_wm = random.uniform(0, 1)

@@ -68,7 +68,8 @@ def dehydrate(dwi, brainmask, synDataLoader, net, iterative_correction=False):
 
             pred = pred_old + (1-pred_old)*pred
             r[brainmask] = pred
-            reconst_brain = subtract_water(dwi_original, brainmask, r, synDataLoader.gtab.bvals, synDataLoader.tenmodel, synDataLoader.get_csf_voxel())
+            reconst_brain = subtract_water(dwi_original, brainmask, r, synDataLoader.gtab.bvals,
+                                           synDataLoader.tenmodel, synDataLoader.get_csf_voxel())
 
             dwi = reconst_brain
 
