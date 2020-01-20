@@ -71,6 +71,7 @@ def train(x, y, num_epochs=25):
                 input, tgt = data
                 input = input.to(device)
                 output = net(input)
+                output = output.detach().cpu()
 
                 mse.append(np.mean((output - tgt).numpy() ** 2))
                 me.append(np.mean(np.abs((output - tgt).numpy())))
