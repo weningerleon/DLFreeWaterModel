@@ -213,6 +213,7 @@ class SynDiffData():
 
         x = []
         y = []
+        random.seed(1)
         for i in tqdm(range(sample_size)):
             f_csf = random.uniform(0, 1)
             f_gm = random.uniform(0, 1)

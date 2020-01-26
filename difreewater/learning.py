@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+torch.manual_seed(1)
 
 class DifreewaterNet(nn.Module):
     def __init__(self, input_dim, output_dim):
