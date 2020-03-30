@@ -187,7 +187,7 @@ class SynDiffData():
 
     def data2model(self, voxels):
         S0 = np.mean(voxels[:, self.gtab.bvals == 0], axis=1)
-        edw = voxels / np.expand_dims(S0, axis=0)
+        edw = voxels / np.expand_dims(S0, axis=1)
         edw = edw[:,self.gtab.bvals!=0]
         edw[np.isnan(edw)] = 1
         edw[np.isinf(edw)] = 1
