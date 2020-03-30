@@ -162,7 +162,7 @@ class SynDiffData():
 
         evals_ms = np.asarray(evals_ms)
         evals_ms = np.reshape(evals_ms, (self.shells.__len__()*3,))
-        response = np.append(np.expand_dims(S0, axis=1), evals_ms)
+        response = np.append(np.expand_dims(S0, axis=0), evals_ms)
 
         return np.expand_dims(response, axis=0)
 
@@ -181,13 +181,13 @@ class SynDiffData():
 
         evals_ms = np.asarray(evals_ms)
         evals_ms = np.reshape(evals_ms, (self.shells.__len__()*3,))
-        response = np.append(np.expand_dims(S0, axis=1), evals_ms)
+        response = np.append(np.expand_dims(S0, axis=0), evals_ms)
 
         return np.expand_dims(response, axis=0)
 
     def data2model(self, voxels):
         S0 = np.mean(voxels[:, self.gtab.bvals == 0], axis=1)
-        edw = voxels / np.expand_dims(S0, axis=1)
+        edw = voxels / np.expand_dims(S0, axis=0)
         edw = edw[:,self.gtab.bvals!=0]
         edw[np.isnan(edw)] = 1
         edw[np.isinf(edw)] = 1
